@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${cinema.id == null} ? 'Add Cinema' : 'Edit Cinema' - MovieTicket">Cinema Form - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-lg-2 d-none d-lg-block admin-sidebar">
+        <div class="nav flex-column">
+          <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a class="nav-link" th:href="@{/admin/movies}"><i class="bi bi-film"></i> Movies</a>
+          <a class="nav-link active" th:href="@{/admin/cinemas}"><i class="bi bi-building"></i> Cinemas</a>
+          <a class="nav-link" th:href="@{/admin/showtimes}"><i class="bi bi-clock"></i> Showtimes</a>
+          <a class="nav-link" th:href="@{/admin/bookings}"><i class="bi bi-ticket"></i> Bookings</a>
+          <a class="nav-link" th:href="@{/admin/customers}"><i class="bi bi-people"></i> Customers</a>
+          <a class="nav-link" th:href="@{/admin/reviews}"><i class="bi bi-chat-quote"></i> Reviews</a>
+          <a class="nav-link" th:href="@{/admin/reports}"><i class="bi bi-bar-chart"></i> Reports</a>
+        </div>
+      </nav>
+
+      <main class="col-lg-10 ms-auto px-4 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold mb-0">
+            <i class="bi bi-building"></i>
+            <span th:text="${cinema.id == null} ? 'Add Cinema' : 'Edit Cinema'">Cinema Form</span>
+          </h3>
+          <a th:href="@{/admin/cinemas}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form th:action="${cinema.id == null} ? @{/admin/cinemas/create} : @{/admin/cinemas/{id}(id=${cinema.id})}" th:object="${cinema}" method="post" class="row g-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">Cinema Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'" id="name" th:field="*{name}" required/>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Required</div>
+              </div>
+              <div class="col-md-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'" id="phone" th:field="*{phone}"/>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Invalid</div>
+              </div>
+              <div class="col-md-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" id="email" th:field="*{email}"/>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Invalid</div>
+              </div>
+              <div class="col-md-8">
+                <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'" id="address" th:field="*{address}" required/>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">Required</div>
+              </div>
+              <input type="hidden" name="isActive" value="true"/>
+              <div class="col-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'" id="description" th:field="*{description}" rows="3"></textarea>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Invalid</div>
+              </div>
+              <div class="col-12">
+                <hr/>
+                <button type="submit" class="btn btn-danger">
+                  <i class="bi bi-floppy"></i>
+                  <span th:text="${cinema.id == null} ? 'Create Cinema' : 'Update Cinema'">Save</span>
+                </button>
+                <a th:href="@{/admin/cinemas}" class="btn btn-outline-secondary ms-2">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<footer class="bg-dark text-light pt-5 pb-3 mt-auto" th:fragment="footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <h5 class="fw-bold mb-3">
+          <i class="bi bi-film text-danger"></i> MovieTicket
+        </h5>
+        <p class="text-secondary small">Your premier destination for movie ticket booking. Book tickets for the latest movies with ease.</p>
+        <div class="d-flex gap-3 fs-5">
+          <a href="#" class="text-secondary hover-danger"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-secondary hover-danger"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="text-secondary hover-danger"><i class="bi bi-instagram"></i></a>
+          <a href="#" class="text-secondary hover-danger"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3">Quick Links</h6>
+        <ul class="list-unstyled small">
+          <li class="mb-2"><a th:href="@{/}" class="text-secondary text-decoration-none">Home</a></li>
+          <li class="mb-2"><a th:href="@{/movies}" class="text-secondary text-decoration-none">Movies</a></li>
+          <li class="mb-2"><a th:href="@{/about}" class="text-secondary text-decoration-none">About Us</a></li>
+          <li class="mb-2"><a th:href="@{/contact}" class="text-secondary text-decoration-none">Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Customer Service</h6>
+        <ul class="list-unstyled small">
+          <li class="mb-2"><a href="#" class="text-secondary text-decoration-none">FAQ</a></li>
+          <li class="mb-2"><a href="#" class="text-secondary text-decoration-none">Terms &amp; Conditions</a></li>
+          <li class="mb-2"><a href="#" class="text-secondary text-decoration-none">Privacy Policy</a></li>
+          <li class="mb-2"><a href="#" class="text-secondary text-decoration-none">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Contact Info</h6>
+        <ul class="list-unstyled small text-secondary">
+          <li class="mb-2"><i class="bi bi-geo-alt"></i> 123 Movie St, Cinema City</li>
+          <li class="mb-2"><i class="bi bi-telephone"></i> +1 (555) 123-4567</li>
+          <li class="mb-2"><i class="bi bi-envelope"></i> support@movieticket.com</li>
+        </ul>
+      </div>
+    </div>
+    <hr class="my-4 border-secondary"/>
+    <div class="row">
+      <div class="col text-center text-secondary small">
+        <p class="mb-0">&copy; <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2026</span> MovieTicket. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>

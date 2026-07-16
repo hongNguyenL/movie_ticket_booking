@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2><i class="bi bi-person"></i> My Profile</h2>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <div class="row g-4">
+      <!-- Profile Info -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0"><i class="bi bi-pencil-square"></i> Edit Profile</h5>
+          </div>
+          <div class="card-body">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+              <i class="bi bi-check-circle"></i> Profile updated successfully!
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <form th:action="@{/customer/profile}" th:object="${user}" method="post" class="needs-validation" novalidate>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'" id="firstName" th:field="*{firstName}" required/>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">Required</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'" id="lastName" th:field="*{lastName}" required/>
+                  <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Required</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" id="email" th:field="*{email}" required/>
+                </div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Required</div>
+              </div>
+              <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                  <input type="tel" class="form-control" th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'" id="phone" th:field="*{phone}"/>
+                </div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Invalid phone</div>
+              </div>
+
+              <hr class="my-4"/>
+
+              <div class="mb-3">
+                <label for="currentPassword" class="form-label">Current Password (required to save changes)</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                  <input type="password" class="form-control" th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'" id="currentPassword" name="currentPassword" required/>
+                </div>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}">Required</div>
+              </div>
+
+              <button type="submit" class="btn btn-danger">
+                <i class="bi bi-floppy"></i> Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0"><i class="bi bi-key"></i> Change Password</h5>
+          </div>
+          <div class="card-body">
+            <form th:action="@{/customer/change-password}" method="post">
+              <div class="mb-3">
+                <label for="currentPass" class="form-label">Current Password</label>
+                <input type="password" class="form-control" id="currentPass" name="currentPassword" required/>
+              </div>
+              <div class="mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="8"/>
+                <div class="form-text">At least 8 characters</div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmNewPass" class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirmNewPass" name="confirmPassword" required/>
+              </div>
+              <button type="submit" class="btn btn-outline-danger w-100">
+                <i class="bi bi-key"></i> Update Password
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0"><i class="bi bi-shield-check"></i> Account Info</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <small class="text-muted d-block">Username</small>
+              <span class="fw-semibold" sec:authentication="name">username</span>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted d-block">Member Since</small>
+              <span class="fw-semibold" th:if="${user.createdAt}" th:text="${#temporals.format(user.createdAt, 'MMM dd, yyyy')}">Date</span>
+            </div>
+            <div>
+              <small class="text-muted d-block">Account Status</small>
+              <span class="badge bg-success" th:if="${user.enabled}">Active</span>
+              <span class="badge bg-danger" th:unless="${user.enabled}">Disabled</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+SELECT setval('roles_id_seq', (SELECT COALESCE(MAX(id), 1) FROM roles));
+SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 1) FROM users));
+SELECT setval('genres_id_seq', (SELECT COALESCE(MAX(id), 1) FROM genres));
+SELECT setval('directors_id_seq', (SELECT COALESCE(MAX(id), 1) FROM directors));
+SELECT setval('actors_id_seq', (SELECT COALESCE(MAX(id), 1) FROM actors));
+SELECT setval('movies_id_seq', (SELECT COALESCE(MAX(id), 1) FROM movies));
+SELECT setval('movie_actors_id_seq', (SELECT COALESCE(MAX(id), 1) FROM movie_actors));
+SELECT setval('cinemas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM cinemas));
+SELECT setval('halls_id_seq', (SELECT COALESCE(MAX(id), 1) FROM halls));
+SELECT setval('seats_id_seq', (SELECT COALESCE(MAX(id), 1) FROM seats));
+SELECT setval('showtimes_id_seq', (SELECT COALESCE(MAX(id), 1) FROM showtimes));
+SELECT setval('bookings_id_seq', (SELECT COALESCE(MAX(id), 1) FROM bookings));
+SELECT setval('booking_seats_id_seq', (SELECT COALESCE(MAX(id), 1) FROM booking_seats));
+SELECT setval('payments_id_seq', (SELECT COALESCE(MAX(id), 1) FROM payments));
+SELECT setval('reviews_id_seq', (SELECT COALESCE(MAX(id), 1) FROM reviews));

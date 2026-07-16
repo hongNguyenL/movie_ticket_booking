@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${movie.id == null} ? 'Add Movie' : 'Edit Movie' - MovieTicket">Movie Form - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-lg-2 d-none d-lg-block admin-sidebar">
+        <div class="nav flex-column">
+          <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a class="nav-link active" th:href="@{/admin/movies}"><i class="bi bi-film"></i> Movies</a>
+          <a class="nav-link" th:href="@{/admin/cinemas}"><i class="bi bi-building"></i> Cinemas</a>
+          <a class="nav-link" th:href="@{/admin/showtimes}"><i class="bi bi-clock"></i> Showtimes</a>
+          <a class="nav-link" th:href="@{/admin/bookings}"><i class="bi bi-ticket"></i> Bookings</a>
+          <a class="nav-link" th:href="@{/admin/customers}"><i class="bi bi-people"></i> Customers</a>
+          <a class="nav-link" th:href="@{/admin/reviews}"><i class="bi bi-chat-quote"></i> Reviews</a>
+          <a class="nav-link" th:href="@{/admin/reports}"><i class="bi bi-bar-chart"></i> Reports</a>
+        </div>
+      </nav>
+
+      <main class="col-lg-10 ms-auto px-4 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold mb-0">
+            <i class="bi bi-film"></i>
+            <span th:text="${movie.id == null} ? 'Add Movie' : 'Edit Movie'">Movie Form</span>
+          </h3>
+          <a th:href="@{/admin/movies}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div th:if="${#fields.hasErrors('global')}" class="alert alert-danger">
+              <span th:each="err : ${#fields.errors('global')}" th:text="${err}" class="d-block">Error</span>
+            </div>
+
+            <form th:action="${movie.id == null} ? @{/admin/movies/create} : @{/admin/movies/{id}(id=${movie.id})}" th:object="${movie}" method="post" enctype="multipart/form-data" class="row g-3">
+              <div class="col-md-8">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'" id="title" th:field="*{title}" required/>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Required</div>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="duration" class="form-label">Duration (min) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" th:classappend="${#fields.hasErrors('duration')} ? 'is-invalid'" id="duration" th:field="*{duration}" min="1" required/>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('duration')}" th:errors="*{duration}">Required</div>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="rating" class="form-label">Rating</label>
+                    <input type="number" step="0.1" class="form-control" th:classappend="${#fields.hasErrors('rating')} ? 'is-invalid'" id="rating" th:field="*{rating}" min="0" max="10"/>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}">Invalid</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="genre" class="form-label">Genre <span class="text-danger">*</span></label>
+                    <select class="form-select" th:classappend="${#fields.hasErrors('genre')} ? 'is-invalid'" id="genre" th:field="*{genre}" required>
+                      <option value="">Select genre...</option>
+                      <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('genre')}" th:errors="*{genre}">Required</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="language" class="form-label">Language <span class="text-danger">*</span></label>
+                    <select class="form-select" th:classappend="${#fields.hasErrors('language')} ? 'is-invalid'" id="language" th:field="*{language}" required>
+                      <option value="">Select language...</option>
+                      <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('language')}" th:errors="*{language}">Required</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="releaseDate" class="form-label">Release Date</label>
+                    <input type="date" class="form-control" th:classappend="${#fields.hasErrors('releaseDate')} ? 'is-invalid'" id="releaseDate" th:field="*{releaseDate}"/>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('releaseDate')}" th:errors="*{releaseDate}">Invalid</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" th:field="*{status}">
+                      <option value="COMING_SOON">Coming Soon</option>
+                      <option value="NOW_SHOWING">Now Showing</option>
+                      <option value="ENDED">Ended</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="director" class="form-label">Director</label>
+                    <input type="text" class="form-control" th:classappend="${#fields.hasErrors('director')} ? 'is-invalid'" id="director" th:field="*{director}"/>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('director')}" th:errors="*{director}">Invalid</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="trailerUrl" class="form-label">Trailer URL</label>
+                    <input type="url" class="form-control" id="trailerUrl" th:field="*{trailerUrl}"/>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <!-- Poster Upload -->
+                <div class="mb-3">
+                  <label for="poster" class="form-label">Poster Image</label>
+                  <div class="text-center mb-3">
+                    <img id="posterPreview" th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid rounded-3" style="max-height: 250px; object-fit: cover; width: 100%;" th:alt="${movie.title}"/>
+                  </div>
+                  <input type="file" class="form-control" id="poster" name="posterFile" accept="image/*"/>
+                  <div class="form-text">Recommended: 400x600px, JPG or PNG</div>
+                </div>
+                <div class="mb-3" th:if="${actors != null}">
+                  <label class="form-label">Actors</label>
+                  <select class="form-select" multiple size="5" name="actorIds">
+                    <option th:each="actor : ${actors}" th:value="${actor.id}" th:text="${actor.name}" th:selected="${movie.actors?.contains(actor)}"></option>
+                  </select>
+                  <div class="form-text">Hold Ctrl/Cmd to select multiple</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'" id="description" th:field="*{description}" rows="4"></textarea>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Invalid</div>
+              </div>
+
+              <div class="col-12">
+                <hr/>
+                <button type="submit" class="btn btn-danger">
+                  <i class="bi bi-floppy"></i>
+                  <span th:text="${movie.id == null} ? 'Create Movie' : 'Update Movie'">Save</span>
+                </button>
+                <a th:href="@{/admin/movies}" class="btn btn-outline-secondary ms-2">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+  <script>
+    document.getElementById('poster')?.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          document.getElementById('posterPreview').src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>

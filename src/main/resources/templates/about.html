@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2><i class="bi bi-info-circle"></i> About Us</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+          <li class="breadcrumb-item active">About</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body p-5">
+            <h3 class="fw-bold mb-4">Welcome to MovieTicket</h3>
+            <p>MovieTicket is your premier destination for booking movie tickets online. We make it easy to find showtimes, choose your seats, and enjoy the latest blockbusters, indie gems, and timeless classics.</p>
+            <p>Our platform offers a seamless booking experience with real-time seat selection, secure payments, and instant digital tickets. Whether you're planning a night out with friends or a family movie day, MovieTicket has you covered.</p>
+
+            <h4 class="fw-bold mt-5 mb-3">Our Mission</h4>
+            <p>To provide movie lovers with the easiest and most enjoyable way to book tickets, enhancing every aspect of the cinema experience from browsing to seating.</p>
+
+            <h4 class="fw-bold mt-5 mb-3">Contact Us</h4>
+            <ul class="list-unstyled">
+              <li class="mb-2"><i class="bi bi-geo-alt text-danger"></i> 123 Movie St, Cinema City</li>
+              <li class="mb-2"><i class="bi bi-telephone text-danger"></i> +1 (555) 123-4567</li>
+              <li class="mb-2"><i class="bi bi-envelope text-danger"></i> support@movieticket.com</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

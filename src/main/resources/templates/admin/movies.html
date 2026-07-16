@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Movies - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-lg-2 d-none d-lg-block admin-sidebar">
+        <div class="nav flex-column">
+          <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a class="nav-link active" th:href="@{/admin/movies}"><i class="bi bi-film"></i> Movies</a>
+          <a class="nav-link" th:href="@{/admin/cinemas}"><i class="bi bi-building"></i> Cinemas</a>
+          <a class="nav-link" th:href="@{/admin/showtimes}"><i class="bi bi-clock"></i> Showtimes</a>
+          <a class="nav-link" th:href="@{/admin/bookings}"><i class="bi bi-ticket"></i> Bookings</a>
+          <a class="nav-link" th:href="@{/admin/customers}"><i class="bi bi-people"></i> Customers</a>
+          <a class="nav-link" th:href="@{/admin/reviews}"><i class="bi bi-chat-quote"></i> Reviews</a>
+          <a class="nav-link" th:href="@{/admin/reports}"><i class="bi bi-bar-chart"></i> Reports</a>
+        </div>
+      </nav>
+
+      <main class="col-lg-10 ms-auto px-4 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold mb-0"><i class="bi bi-film"></i> Movies</h3>
+          <a th:href="@{/admin/movies/create}" class="btn btn-danger">
+            <i class="bi bi-plus-lg"></i> Add Movie
+          </a>
+        </div>
+
+        <!-- Search -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <form th:action="@{/admin/movies}" method="get" class="row g-2">
+              <div class="col-md-4">
+                <input type="text" class="form-control" name="q" placeholder="Search by title..." th:value="${param.q}"/>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" name="genre">
+                  <option value="">All Genres</option>
+                  <option th:each="g : ${genres}" th:value="${g.name}" th:text="${g.name}" th:selected="${param.genre != null and param.genre[0] == g.name}"></option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" name="status">
+                  <option value="">All Status</option>
+                  <option value="NOW_SHOWING" th:selected="${param.status != null and param.status[0] == 'NOW_SHOWING'}">Now Showing</option>
+                  <option value="COMING_SOON" th:selected="${param.status != null and param.status[0] == 'COMING_SOON'}">Coming Soon</option>
+                  <option value="ENDED" th:selected="${param.status != null and param.status[0] == 'ENDED'}">Ended</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-danger w-100" type="submit"><i class="bi bi-search"></i> Search</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Poster</th>
+                    <th>Title</th>
+                    <th>Genre</th>
+                    <th>Language</th>
+                    <th>Rating</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="movie : ${movies}">
+                    <td th:text="${movie.id}">1</td>
+                    <td>
+                      <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" style="width: 40px; height: 60px; object-fit: cover;" class="rounded" th:alt="${movie.title}"/>
+                    </td>
+                    <td class="fw-semibold" th:text="${movie.title}">Movie Title</td>
+                    <td><span class="badge bg-danger" th:text="${movie.genre}">Action</span></td>
+                    <td th:text="${movie.language}">English</td>
+                    <td><i class="bi bi-star-fill text-warning"></i> <span th:text="${movie.rating}">0.0</span></td>
+                    <td th:text="${movie.duration} + ' min'">120 min</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a th:href="@{/admin/movies/{id}/edit(id=${movie.id})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${movie.id}, '${#strings.escapeJavaScript(movie.title)}')"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4" th:if="${totalPages > 1}">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${first} ? 'disabled'"><a class="page-link" th:href="@{/admin/movies(page=0, q=${param.q}, genre=${param.genre}, status=${param.status})}"><i class="bi bi-chevron-double-left"></i></a></li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == number} ? 'active'"><a class="page-link" th:href="@{/admin/movies(page=${i}, q=${param.q}, genre=${param.genre}, status=${param.status})}" th:text="${i+1}"></a></li>
+            <li class="page-item" th:classappend="${last} ? 'disabled'"><a class="page-link" th:href="@{/admin/movies(page=${totalPages - 1}, q=${param.q}, genre=${param.genre}, status=${param.status})}"><i class="bi bi-chevron-double-right"></i></a></li>
+          </ul>
+        </nav>
+      </main>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Delete Movie</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete <strong id="deleteItemName"></strong>?</p>
+          <p class="text-muted small mb-0">This action cannot be undone. All associated data will be removed.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form th:action="@{/admin/movies/delete}" method="post" id="deleteForm">
+            <input type="hidden" name="id" id="deleteItemId"/>
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+  <script>
+    function confirmDelete(id, name) {
+      document.getElementById('deleteItemId').value = id;
+      document.getElementById('deleteItemName').textContent = name;
+      new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+  </script>
+</body>
+</html>

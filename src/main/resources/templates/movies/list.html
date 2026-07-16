@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movies - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2><i class="bi bi-collection-play"></i> Movies</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+          <li class="breadcrumb-item active">Movies</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <div class="row">
+      <!-- Filter Sidebar -->
+      <aside class="col-lg-3 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white fw-bold">
+            <i class="bi bi-funnel"></i> Filters
+          </div>
+          <div class="card-body">
+            <form th:action="@{/movies}" method="get" id="filterForm">
+              <!-- Search -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Search</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control" name="keyword" th:value="${param.keyword}" placeholder="Movie name..."/>
+                  <button class="btn btn-outline-danger" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+              </div>
+
+              <!-- Genre -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Genre</label>
+                <select class="form-select form-select-sm" name="genre" onchange="this.form.submit()">
+                  <option value="">All Genres</option>
+                  <option th:each="g : ${genres}" th:value="${g}" th:text="${g}" th:selected="${param.genre != null and param.genre[0] == g}"></option>
+                </select>
+              </div>
+
+              <!-- Language -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Language</label>
+                <select class="form-select form-select-sm" name="language" onchange="this.form.submit()">
+                  <option value="">All Languages</option>
+                  <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang}" th:selected="${param.language != null and param.language[0] == lang}"></option>
+                </select>
+              </div>
+
+              <!-- Rating -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Minimum Rating</label>
+                <select class="form-select form-select-sm" name="minRating" onchange="this.form.submit()">
+                  <option value="">Any Rating</option>
+                  <option value="9" th:selected="${param.minRating != null and param.minRating[0] == '9'}">9+</option>
+                  <option value="8" th:selected="${param.minRating != null and param.minRating[0] == '8'}">8+</option>
+                  <option value="7" th:selected="${param.minRating != null and param.minRating[0] == '7'}">7+</option>
+                  <option value="6" th:selected="${param.minRating != null and param.minRating[0] == '6'}">6+</option>
+                  <option value="5" th:selected="${param.minRating != null and param.minRating[0] == '5'}">5+</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100 btn-sm">
+                <i class="bi bi-funnel"></i> Apply Filters
+              </button>
+              <a th:href="@{/movies}" class="btn btn-outline-secondary w-100 btn-sm mt-2">
+                <i class="bi bi-x-circle"></i> Clear Filters
+              </a>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Movie Grid -->
+      <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">
+            Showing <span th:text="${movies.page() * movies.size() + 1}">1</span> - <span th:text="${movies.last() ? movies.totalElements() : (movies.page() + 1) * movies.size()}">20</span> of <span th:text="${movies.totalElements()}">0</span> movies
+          </span>
+        </div>
+
+        <div class="row g-4" th:if="${movies != null and !movies.content().isEmpty()}">
+          <div class="col-xl-3 col-lg-4 col-md-6" th:each="movie : ${movies.content()}">
+            <div class="card movie-card">
+              <div class="position-relative">
+                <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="card-img-top" th:alt="${movie.title}"/>
+                <div class="movie-rating"><i class="bi bi-star-fill"></i> <span th:text="${movie.rating}">0.0</span></div>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" th:text="${movie.title}">Title</h5>
+                <div class="movie-meta mb-2">
+                  <span th:if="${movie.genre}"><i class="bi bi-tag"></i> <span th:text="${movie.genre}">Genre</span></span>
+                </div>
+                <div class="movie-meta mb-3">
+                  <span><i class="bi bi-clock"></i> <span th:text="${movie.duration}">0</span> min</span>
+                  <span class="ms-2"><i class="bi bi-translate"></i> <span th:text="${movie.language}">Lang</span></span>
+                </div>
+                <a th:href="@{/movies/{uuid}(uuid=${movie.uuid})}" class="btn btn-danger w-100 btn-sm">
+                  <i class="bi bi-ticket-perforated"></i> Book Now
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center py-5" th:unless="${movies != null and !movies.content().isEmpty()}">
+          <i class="bi bi-film text-muted" style="font-size: 3rem;"></i>
+          <p class="text-muted mt-2">No movies found.</p>
+          <a th:href="@{/movies}" class="btn btn-primary">Clear Filters</a>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4" th:if="${movies.totalPages() > 1}">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${movies.page() == 0} ? 'disabled'">
+              <a class="page-link" th:href="@{/movies(page=0, keyword=${param.keyword}, genre=${param.genre}, language=${param.language}, minRating=${param.minRating})}">
+                <i class="bi bi-chevron-double-left"></i>
+              </a>
+            </li>
+            <li class="page-item" th:classappend="${movies.page() == 0} ? 'disabled'">
+              <a class="page-link" th:href="@{/movies(page=${movies.page() - 1}, keyword=${param.keyword}, genre=${param.genre}, language=${param.language}, minRating=${param.minRating})}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, movies.totalPages() - 1)}" th:classappend="${i == movies.page()} ? 'active'">
+              <a class="page-link" th:href="@{/movies(page=${i}, keyword=${param.keyword}, genre=${param.genre}, language=${param.language}, minRating=${param.minRating})}" th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${movies.last()} ? 'disabled'">
+              <a class="page-link" th:href="@{/movies(page=${movies.page() + 1}, keyword=${param.keyword}, genre=${param.genre}, language=${param.language}, minRating=${param.minRating})}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item" th:classappend="${movies.last()} ? 'disabled'">
+              <a class="page-link" th:href="@{/movies(page=${movies.totalPages() - 1}, keyword=${param.keyword}, genre=${param.genre}, language=${param.language}, minRating=${param.minRating})}">
+                <i class="bi bi-chevron-double-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

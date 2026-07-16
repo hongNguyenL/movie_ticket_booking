@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Date &amp; Time - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a th:href="@{/booking/select-movie}" class="text-decoration-none">Select Movie</a></li>
+          <li class="breadcrumb-item"><a th:href="@{/booking/select-cinema(movieId=${movie.id})}" class="text-decoration-none">Select Cinema</a></li>
+          <li class="breadcrumb-item active">Date &amp; Time</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <!-- Booking Steps -->
+    <div class="booking-steps mb-5">
+      <div class="step completed">
+        <span class="step-number"><i class="bi bi-check"></i></span> Select Movie
+      </div>
+      <div class="step active">
+        <span class="step-number">2</span> Choose Cinema &amp; Time
+      </div>
+      <div class="step">
+        <span class="step-number">3</span> Select Seats
+      </div>
+      <div class="step">
+        <span class="step-number">4</span> Checkout
+      </div>
+    </div>
+
+    <!-- Selected Info -->
+    <div class="alert alert-info d-flex align-items-center gap-3">
+      <i class="bi bi-info-circle fs-4"></i>
+      <div>
+        <strong th:text="${movie.title}">Movie</strong> at
+        <strong th:text="${cinema.name}">Cinema</strong>
+      </div>
+    </div>
+
+    <!-- Date Selection -->
+    <h4 class="fw-bold mb-4"><i class="bi bi-calendar-event"></i> Select Date &amp; Showtime</h4>
+
+    <form th:action="@{/booking/select-seats}" method="get">
+      <input type="hidden" name="movieId" th:value="${movie.id}"/>
+      <input type="hidden" name="cinemaId" th:value="${cinema.id}"/>
+
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex gap-2 flex-wrap">
+            <a th:each="date : ${dates}" th:href="@{/booking/select-date(movieId=${movie.id}, cinemaId=${cinema.id}, date=${date})}"
+               class="btn" th:classappend="${param.date != null and param.date[0] == date.toString()} ? 'btn-danger' : 'btn-outline-secondary'"
+               th:text="${#temporals.format(date, 'EEE, MMM dd')}">Date</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Showtime Grid -->
+      <div th:if="${showtimes != null}">
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4" th:each="showtime : ${showtimes}">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h5 class="fw-bold mb-1" th:text="${#temporals.format(showtime.startTime, 'hh:mm a')}">10:00 AM</h5>
+                    <small class="text-muted" th:text="${showtime.hall?.name}">Hall 1</small>
+                  </div>
+                  <span class="badge bg-info" th:if="${showtime.hall?.seatCapacity}">
+                    <span th:text="${showtime.availableSeats}">0</span>/<span th:text="${showtime.hall?.seatCapacity}">0</span>
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-danger">
+                    <span th:text="${#numbers.formatDecimal(showtime.price, 1, 2)}">10.00</span>
+                  </span>
+                  <button type="submit" name="showtimeId" th:value="${showtime.id}" class="btn btn-danger btn-sm" th:disabled="${showtime.availableSeats == 0}">
+                    <th:block th:if="${showtime.availableSeats > 0}">
+                      <i class="bi bi-ticket-perforated"></i> Select
+                    </th:block>
+                    <th:block th:unless="${showtime.availableSeats > 0}">
+                      Sold Out
+                    </th:block>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center py-5" th:unless="${showtimes != null}">
+        <i class="bi bi-clock text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-2">Please select a date to see available showtimes.</p>
+      </div>
+    </form>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

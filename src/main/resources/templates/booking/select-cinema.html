@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Cinema - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a th:href="@{/booking/select-movie}" class="text-decoration-none">Select Movie</a></li>
+          <li class="breadcrumb-item active">Select Cinema</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <!-- Booking Steps -->
+    <div class="booking-steps mb-5">
+      <div class="step completed">
+        <span class="step-number"><i class="bi bi-check"></i></span> Select Movie
+      </div>
+      <div class="step active">
+        <span class="step-number">2</span> Choose Cinema &amp; Time
+      </div>
+      <div class="step">
+        <span class="step-number">3</span> Select Seats
+      </div>
+      <div class="step">
+        <span class="step-number">4</span> Checkout
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-lg-3">
+        <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid rounded-3 shadow-sm" th:alt="${movie.title}"/>
+      </div>
+      <div class="col-lg-9">
+        <h3 class="fw-bold" th:text="${movie.title}">Movie Title</h3>
+        <div class="d-flex flex-wrap gap-3 mb-3">
+          <span class="badge bg-danger" th:text="${movie.genre}">Action</span>
+          <span class="badge bg-secondary" th:text="${movie.language}">English</span>
+          <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> <span th:text="${movie.rating}">0.0</span></span>
+          <span class="text-muted"><i class="bi bi-clock"></i> <span th:text="${movie.duration}">0</span> min</span>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="fw-bold mb-4"><i class="bi bi-building"></i> Select a Cinema</h4>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" th:each="cinema : ${cinemas}">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="bg-danger text-white rounded-3 p-3 me-3">
+                <i class="bi bi-building fs-4"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-1" th:text="${cinema.name}">Cinema Name</h5>
+                <small class="text-muted" th:text="${cinema.location}">Location</small>
+              </div>
+            </div>
+            <p class="small text-muted mb-3" th:text="${cinema.description}">Description...</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted"><i class="bi bi-grid-3x3-gap"></i> <span th:text="${cinema.totalHalls}">5</span> halls</small>
+              <a th:href="@{/booking/select-date(movieId=${movie.id}, cinemaId=${cinema.id})}" class="btn btn-danger btn-sm">
+                Select <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

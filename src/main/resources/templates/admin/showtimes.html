@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Showtimes - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-lg-2 d-none d-lg-block admin-sidebar">
+        <div class="nav flex-column">
+          <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a class="nav-link" th:href="@{/admin/movies}"><i class="bi bi-film"></i> Movies</a>
+          <a class="nav-link" th:href="@{/admin/cinemas}"><i class="bi bi-building"></i> Cinemas</a>
+          <a class="nav-link active" th:href="@{/admin/showtimes}"><i class="bi bi-clock"></i> Showtimes</a>
+          <a class="nav-link" th:href="@{/admin/bookings}"><i class="bi bi-ticket"></i> Bookings</a>
+          <a class="nav-link" th:href="@{/admin/customers}"><i class="bi bi-people"></i> Customers</a>
+          <a class="nav-link" th:href="@{/admin/reviews}"><i class="bi bi-chat-quote"></i> Reviews</a>
+          <a class="nav-link" th:href="@{/admin/reports}"><i class="bi bi-bar-chart"></i> Reports</a>
+        </div>
+      </nav>
+
+      <main class="col-lg-10 ms-auto px-4 py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold mb-0"><i class="bi bi-clock"></i> Showtimes</h3>
+          <a th:href="@{/admin/showtimes/create}" class="btn btn-danger">
+            <i class="bi bi-plus-lg"></i> Add Showtime
+          </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <form th:action="@{/admin/showtimes}" method="get" class="row g-2">
+              <div class="col-md-3">
+                <select class="form-select" name="movieId">
+                  <option value="">All Movies</option>
+                  <option th:each="m : ${movies}" th:value="${m.id}" th:text="${m.title}" th:selected="${param.movieId != null and param.movieId[0] == m.id.toString()}"></option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" name="cinemaId">
+                  <option value="">All Cinemas</option>
+                  <option th:each="c : ${cinemas}" th:value="${c.id}" th:text="${c.name}" th:selected="${param.cinemaId != null and param.cinemaId[0] == c.id.toString()}"></option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <input type="date" class="form-control" name="date" th:value="${param.date}"/>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-danger w-100" type="submit"><i class="bi bi-search"></i> Filter</button>
+              </div>
+              <div class="col-md-2">
+                <a th:href="@{/admin/showtimes}" class="btn btn-outline-secondary w-100">Clear</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Movie</th>
+                    <th>Cinema</th>
+                    <th>Hall</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Price</th>
+                    <th>Available</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="st : ${showtimes}">
+                    <td th:text="${st.id}">1</td>
+                    <td class="fw-semibold" th:text="${st.movie?.title}">Movie</td>
+                    <td th:text="${st.hall?.cinema?.name}">Cinema</td>
+                    <td th:text="${st.hall?.name}">Hall 1</td>
+                    <td th:text="${#temporals.format(st.startTime, 'MMM dd, yyyy')}">Date</td>
+                    <td th:text="${#temporals.format(st.startTime, 'hh:mm a')}">Time</td>
+                    <td th:text="${#numbers.formatDecimal(st.ticketPrice, 1, 2)}">$10.00</td>
+                    <td>
+                      <span class="badge" th:classappend="${st.availableSeats > 10} ? 'bg-success' : (${st.availableSeats > 0} ? 'bg-warning text-dark' : 'bg-danger')" th:text="${st.availableSeats}">100</span>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <span class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-pencil"></i></span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${st.id}, '${st.movie?.title} at ${#temporals.format(st.startTime, 'hh:mm a')}')"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4" th:if="${totalPages > 1}">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${first} ? 'disabled'"><a class="page-link" th:href="@{/admin/showtimes(page=0, movieId=${param.movieId}, cinemaId=${param.cinemaId}, date=${param.date})}"><i class="bi bi-chevron-double-left"></i></a></li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == number} ? 'active'"><a class="page-link" th:href="@{/admin/showtimes(page=${i}, movieId=${param.movieId}, cinemaId=${param.cinemaId}, date=${param.date})}" th:text="${i+1}"></a></li>
+            <li class="page-item" th:classappend="${last} ? 'disabled'"><a class="page-link" th:href="@{/admin/showtimes(page=${totalPages - 1}, movieId=${param.movieId}, cinemaId=${param.cinemaId}, date=${param.date})}"><i class="bi bi-chevron-double-right"></i></a></li>
+          </ul>
+        </nav>
+      </main>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Delete Showtime</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete showtime for <strong id="deleteItemName"></strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form th:action="@{/admin/showtimes/delete}" method="post">
+            <input type="hidden" name="id" id="deleteItemId"/>
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+  <script>
+    function confirmDelete(id, name) {
+      document.getElementById('deleteItemId').value = id;
+      document.getElementById('deleteItemName').textContent = name;
+      new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+  </script>
+</body>
+</html>

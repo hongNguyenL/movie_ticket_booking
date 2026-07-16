@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MovieTicket - Book Your Movie Tickets</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container text-center">
+      <h1 class="display-4 fw-bold">Experience Cinema Like Never Before</h1>
+      <p class="lead">Book tickets for the latest blockbusters, indie gems, and timeless classics.</p>
+      <div class="hero-search d-flex justify-content-center">
+        <form th:action="@{/movies}" method="get" class="input-group">
+          <input type="text" class="form-control" name="keyword" placeholder="Search movies, genres, actors..." aria-label="Search"/>
+          <button class="btn btn-danger btn-lg px-4" type="submit">
+            <i class="bi bi-search"></i> Search
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <main class="container py-5">
+    <!-- Featured Movies Carousel -->
+    <section class="mb-5" th:if="${featuredMovies != null and !featuredMovies.isEmpty()}">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-star-fill text-warning"></i> Featured Movies</h2>
+        <a th:href="@{/movies}" class="btn btn-outline-danger btn-sm">View All</a>
+      </div>
+      <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner rounded-4 overflow-hidden">
+          <div class="carousel-item" th:classappend="${stat.index == 0} ? 'active'" th:each="movie, stat : ${featuredMovies}">
+            <div class="row g-0">
+              <div class="col-md-5">
+                <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid h-100 w-100" style="object-fit: cover; max-height: 400px;" th:alt="${movie.title}"/>
+              </div>
+              <div class="col-md-7 bg-dark text-light p-4 d-flex flex-column justify-content-center">
+                <h3 class="fw-bold" th:text="${movie.title}">Movie Title</h3>
+                <div class="d-flex gap-3 mb-2 small text-secondary">
+                  <span><i class="bi bi-clock"></i> <span th:text="${movie.duration}">120</span> min</span>
+                  <span><i class="bi bi-translate"></i> <span th:text="${movie.language}">English</span></span>
+                  <span><i class="bi bi-star-fill text-warning"></i> <span th:text="${movie.rating}">8.5</span></span>
+                </div>
+                <p class="text-secondary mb-3" th:text="${#strings.abbreviate(movie.description, 200)}">Description...</p>
+                <div>
+                  <a th:href="@{/movies/{id}(id=${movie.id})}" class="btn btn-danger">
+                    <i class="bi bi-ticket-perforated"></i> Book Now
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Now Showing -->
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-play-circle text-danger"></i> Now Showing</h2>
+        <a th:href="@{/movies}" class="btn btn-outline-danger btn-sm">View All</a>
+      </div>
+      <div class="row g-4" th:if="${nowShowing != null and !nowShowing.isEmpty()}">
+        <div class="col-lg-3 col-md-4 col-sm-6" th:each="movie : ${nowShowing}">
+          <div class="card movie-card">
+            <div class="position-relative">
+              <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="card-img-top" th:alt="${movie.title}"/>
+              <div class="movie-rating"><i class="bi bi-star-fill"></i> <span th:text="${movie.rating}">0.0</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title" th:text="${movie.title}">Title</h5>
+              <div class="movie-meta mb-2">
+                <span th:if="${movie.genre}"><i class="bi bi-tag"></i> <span th:text="${movie.genre}">Genre</span></span>
+              </div>
+              <div class="movie-meta mb-3">
+                <span><i class="bi bi-clock"></i> <span th:text="${movie.duration}">0</span> min</span>
+                <span class="ms-3"><i class="bi bi-translate"></i> <span th:text="${movie.language}">Lang</span></span>
+              </div>
+              <a th:href="@{/movies/{id}(id=${movie.id})}" class="btn btn-danger w-100 btn-sm">
+                <i class="bi bi-ticket-perforated"></i> Book Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center py-5" th:unless="${nowShowing != null and !nowShowing.isEmpty()}">
+        <i class="bi bi-film text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-2">No movies currently showing.</p>
+      </div>
+    </section>
+
+    <!-- Top Rated -->
+    <section class="mb-5" th:if="${topRated != null and !topRated.isEmpty()}">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-trophy-fill text-warning"></i> Top Rated</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-4 col-sm-6" th:each="movie : ${topRated}">
+          <div class="card movie-card">
+            <div class="position-relative">
+              <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="card-img-top" th:alt="${movie.title}"/>
+              <div class="movie-rating"><i class="bi bi-star-fill"></i> <span th:text="${movie.rating}">0.0</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title" th:text="${movie.title}">Title</h5>
+              <div class="movie-meta mb-2">
+                <span th:if="${movie.genre}"><i class="bi bi-tag"></i> <span th:text="${movie.genre}">Genre</span></span>
+              </div>
+              <div class="movie-meta mb-3">
+                <span><i class="bi bi-clock"></i> <span th:text="${movie.duration}">0</span> min</span>
+              </div>
+              <a th:href="@{/movies/{id}(id=${movie.id})}" class="btn btn-danger w-100 btn-sm">
+                <i class="bi bi-ticket-perforated"></i> Book Now
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

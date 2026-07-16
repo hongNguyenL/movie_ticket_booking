@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Movie - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h2><i class="bi bi-film"></i> Book Tickets</h2>
+    </div>
+  </div>
+
+  <main class="container mb-5">
+    <!-- Booking Steps -->
+    <div class="booking-steps mb-5">
+      <div class="step active">
+        <span class="step-number">1</span> Select Movie
+      </div>
+      <div class="step">
+        <span class="step-number">2</span> Choose Cinema &amp; Time
+      </div>
+      <div class="step">
+        <span class="step-number">3</span> Select Seats
+      </div>
+      <div class="step">
+        <span class="step-number">4</span> Checkout
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div th:each="movie : ${movies}" class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card movie-card">
+          <div class="position-relative">
+            <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="card-img-top" th:alt="${movie.title}"/>
+            <div class="movie-rating"><i class="bi bi-star-fill"></i> <span th:text="${movie.rating}">0.0</span></div>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title" th:text="${movie.title}">Title</h5>
+            <div class="movie-meta mb-2">
+              <span><i class="bi bi-tag"></i> <span th:text="${movie.genre}">Genre</span></span>
+            </div>
+            <div class="movie-meta mb-3">
+              <span><i class="bi bi-clock"></i> <span th:text="${movie.duration}">0</span> min</span>
+              <span class="ms-2"><i class="bi bi-translate"></i> <span th:text="${movie.language}">Lang</span></span>
+            </div>
+            <a th:href="@{/booking/select-cinema(movieId=${movie.id})}" class="btn btn-danger w-100 btn-sm">
+              <i class="bi bi-ticket-perforated"></i> Select
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

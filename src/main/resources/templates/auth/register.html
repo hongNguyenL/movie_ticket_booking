@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - MovieTicket</title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card card" style="max-width: 550px;">
+      <div class="card-header">
+        <div class="auth-brand">
+          <i class="bi bi-film"></i> MovieTicket
+        </div>
+        <p class="text-muted mt-2 mb-0">Create your account to start booking.</p>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/auth/register}" th:object="${registerRequest}" method="post" class="needs-validation" novalidate>
+          <div th:if="${#fields.hasErrors('global')}" class="alert alert-danger">
+            <i class="bi bi-exclamation-circle"></i>
+            <span th:each="err : ${#fields.errors('global')}" th:text="${err}" class="d-block">Error</span>
+          </div>
+          <div class="mb-3">
+            <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" id="fullName" th:field="*{fullName}" placeholder="John Doe" required/>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Full name is required</div>
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-at"></i></span>
+              <input type="text" class="form-control" th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'" id="username" th:field="*{username}" placeholder="johndoe" required/>
+            </div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Username is required</div>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+              <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" id="email" th:field="*{email}" placeholder="john@example.com" required/>
+            </div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Valid email is required</div>
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+              <input type="tel" class="form-control" th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'" id="phone" th:field="*{phone}" placeholder="+1 (555) 123-4567"/>
+            </div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Invalid phone number</div>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input type="password" class="form-control" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'" id="password" th:field="*{password}" placeholder="Create a password" required oninput="updatePasswordStrength(this.value)"/>
+              <button class="btn btn-outline-secondary password-toggle" type="button">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password is required</div>
+            <div class="mt-2">
+              <div class="progress" style="height: 6px;">
+                <div id="password-strength-meter" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+              </div>
+              <small id="password-strength-text" class="text-muted"></small>
+            </div>
+            <div class="form-text">At least 8 characters with uppercase, lowercase, number and special character.</div>
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+              <input type="password" class="form-control" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'" id="confirmPassword" th:field="*{confirmPassword}" placeholder="Confirm your password" required/>
+            </div>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}">Passwords must match</div>
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="agree" required/>
+            <label class="form-check-label" for="agree">I agree to the <a href="#" class="text-decoration-none">Terms &amp; Conditions</a> and <a href="#" class="text-decoration-none">Privacy Policy</a></label>
+          </div>
+          <button type="submit" class="btn btn-danger btn-lg w-100 mb-3">
+            <i class="bi bi-person-plus"></i> Create Account
+          </button>
+          <p class="text-center text-muted mb-0">
+            Already have an account?
+            <a th:href="@{/auth/login}" class="text-decoration-none fw-semibold">Sign in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>

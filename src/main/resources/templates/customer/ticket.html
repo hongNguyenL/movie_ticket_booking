@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ticket - <span th:text="${booking.bookingReference}">REF</span></title>
+  <div th:replace="~{fragments/styles :: styles}"></div>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+    }
+  </style>
+</head>
+<body style="background: #f4f4f4;">
+  <div class="container py-4">
+    <!-- Print Button -->
+    <div class="text-center mb-4 no-print">
+      <button class="btn btn-danger btn-lg" onclick="window.print()">
+        <i class="bi bi-printer"></i> Print Ticket
+      </button>
+      <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-outline-secondary btn-lg ms-2">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <div class="ticket-container">
+      <div class="ticket">
+        <!-- Header -->
+        <div class="ticket-header">
+          <h4 class="fw-bold mb-1"><i class="bi bi-film"></i> MovieTicket</h4>
+          <p class="mb-0 small opacity-75">Admit One - Cinema Ticket</p>
+        </div>
+
+        <!-- Body -->
+        <div class="ticket-body">
+          <div class="text-center mb-4">
+            <h3 class="fw-bold" th:text="${booking.showtime?.movie?.title}">Movie Title</h3>
+            <p class="text-muted" th:if="${booking.showtime?.movie?.genre}" th:text="${booking.showtime?.movie?.genre}">Genre</p>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <div class="ticket-info">
+            <div>
+              <div class="label">Cinema</div>
+              <div class="value" th:text="${booking.showtime?.cinema?.name}">Cinema</div>
+              <div class="text-muted small" th:if="${booking.showtime?.cinema?.location}" th:text="${booking.showtime?.cinema?.location}">Location</div>
+            </div>
+            <div>
+              <div class="label">Hall</div>
+              <div class="value" th:text="${booking.showtime?.hall?.name}">Hall 1</div>
+            </div>
+            <div>
+              <div class="label">Date</div>
+              <div class="value" th:text="${#temporals.format(booking.showtime?.startTime, 'EEEE, MMM dd, yyyy')}">Date</div>
+            </div>
+            <div>
+              <div class="label">Time</div>
+              <div class="value" th:text="${#temporals.format(booking.showtime?.startTime, 'hh:mm a')}">Time</div>
+            </div>
+            <div>
+              <div class="label">Seats</div>
+              <div class="value">
+                <span th:each="seat, iter : ${booking.seats}" th:text="${seat.seatNumber}" th:remove="tag">A1</span><span th:unless="${iter.last}">, </span>
+              </div>
+            </div>
+            <div>
+              <div class="label">Booking Ref</div>
+              <div class="value" th:text="${booking.bookingReference}">REF123</div>
+            </div>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <div class="text-center">
+            <div class="mb-2">
+              <span class="text-muted">Total Paid:</span>
+              <span class="fw-bold fs-4 text-danger" th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Barcode placeholder -->
+          <div class="ticket-barcode">
+            <div style="font-family: 'Libre Barcode 39', monospace; font-size: 2.5rem; letter-spacing: 3px;" th:text="${booking.bookingReference}">REF123</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="ticket-footer">
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle"></i> Please arrive 15 minutes before showtime.
+            <br/>
+            This ticket is non-refundable and non-transferable.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="~{fragments/scripts :: scripts}"></div>
+</body>
+</html>
