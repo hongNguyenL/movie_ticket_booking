@@ -140,18 +140,54 @@
       <div th:each="review : ${reviews}" class="card review-card">
         <div class="card-body">
           <div class="d-flex gap-3">
-            <div class="review-avatar flex-shrink-0" th:text="${#strings.substring(review.user?.firstName, 0, 1)}">U</div>
+            <div class="review-avatar flex-shrink-0" th:text="${#strings.substring(review.userName, 0, 1)}">U</div>
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between">
                 <div>
-                  <span class="fw-semibold" th:text="${review.user?.firstName + ' ' + review.user?.lastName}">User</span>
+                  <span class="fw-semibold" th:text="${review.userName}">User</span>
                   <span class="text-muted small ms-2" th:text="${#temporals.format(review.createdAt, 'MMM dd, yyyy')}">Date</span>
                 </div>
                 <div class="star-rating">
-                  <i class="bi bi-star-fill text-warning" th:each="i : ${#numbers.sequence(1, 5)}" th:classappend="${i <= review.rating} ? 'text-warning' : 'text-secondary'"></i>
+                  <i class="bi bi-star-fill" th:each="i : ${#numbers.sequence(1, 5)}" th:classappend="${i <= review.rating} ? 'text-warning' : 'text-secondary'"></i>
                 </div>
               </div>
               <p class="mb-0 mt-1" th:if="${review.comment}" th:text="${review.comment}">Comment...</p>
+
+              <div sec:authorize="isAuthenticated()">
+                <div th:if="${#authentication.principal.id == review.userId}" class="mt-2">
+                  <button class="btn btn-sm btn-outline-primary me-1" th:onclick="'toggleEditForm(' + ${review.id} + ')'">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <form th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post" style="display:inline">
+                    <input type="hidden" name="movieId" th:value="${movie.id}"/>
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this review?')">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-3 border-top" th:id="'edit-form-' + ${review.id}" style="display:none">
+                <form th:action="@{/reviews/{id}/edit(id=${review.id})}" method="post">
+                  <input type="hidden" name="movieId" th:value="${movie.id}"/>
+                  <div class="mb-2">
+                    <label class="form-label small">Rating</label>
+                    <div class="edit-star-rating" th:id="'stars-' + ${review.id}">
+                      <i class="bi bi-star star" data-value="1" th:onclick="'setEditRating(' + ${review.id} + ', 1)'"></i>
+                      <i class="bi bi-star star" data-value="2" th:onclick="'setEditRating(' + ${review.id} + ', 2)'"></i>
+                      <i class="bi bi-star star" data-value="3" th:onclick="'setEditRating(' + ${review.id} + ', 3)'"></i>
+                      <i class="bi bi-star star" data-value="4" th:onclick="'setEditRating(' + ${review.id} + ', 4)'"></i>
+                      <i class="bi bi-star star" data-value="5" th:onclick="'setEditRating(' + ${review.id} + ', 5)'"></i>
+                      <input type="hidden" name="rating" class="edit-rating-value" th:value="${review.rating}"/>
+                    </div>
+                  </div>
+                  <div class="mb-2">
+                    <textarea class="form-control form-control-sm" name="comment" rows="2" th:text="${review.comment}"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-sm btn-primary me-1"><i class="bi bi-check"></i> Save</button>
+                  <button type="button" class="btn btn-sm btn-secondary" th:onclick="'toggleEditForm(' + ${review.id} + ')'">Cancel</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -197,7 +233,31 @@
   <script>
     function setRating(val) {
       document.getElementById('ratingValue').value = val;
-      document.querySelectorAll('.star-rating-input .star').forEach(star => {
+      document.querySelectorAll('#starRating .star').forEach(star => {
+        const v = parseInt(star.dataset.value);
+        star.className = v <= val ? 'bi bi-star-fill star active' : 'bi bi-star star';
+      });
+    }
+
+    function toggleEditForm(id) {
+      const form = document.getElementById('edit-form-' + id);
+      if (!form) return;
+      const visible = form.style.display !== 'none';
+      form.style.display = visible ? 'none' : 'block';
+      if (!visible) {
+        const input = form.querySelector('.edit-rating-value');
+        const rating = parseInt(input.value) || 0;
+        form.querySelectorAll('.star').forEach(star => {
+          const v = parseInt(star.dataset.value);
+          star.className = v <= rating ? 'bi bi-star-fill star active' : 'bi bi-star star';
+        });
+      }
+    }
+
+    function setEditRating(id, val) {
+      const container = document.getElementById('stars-' + id);
+      container.querySelector('.edit-rating-value').value = val;
+      container.querySelectorAll('.star').forEach(star => {
         const v = parseInt(star.dataset.value);
         star.className = v <= val ? 'bi bi-star-fill star active' : 'bi bi-star star';
       });
