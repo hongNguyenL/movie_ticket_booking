@@ -1,10 +1,12 @@
 package com.nguyen.movieticket.controller;
 
 import com.nguyen.movieticket.dto.request.BookingRequest;
-import com.nguyen.movieticket.dto.request.PaymentRequest;
 import com.nguyen.movieticket.dto.response.*;
 import com.nguyen.movieticket.security.CustomUserDetails;
-import com.nguyen.movieticket.service.*;
+import com.nguyen.movieticket.service.BookingService;
+import com.nguyen.movieticket.service.CinemaService;
+import com.nguyen.movieticket.service.MovieService;
+import com.nguyen.movieticket.service.ShowtimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +30,6 @@ public class BookingController {
     private final CinemaService cinemaService;
     private final ShowtimeService showtimeService;
     private final BookingService bookingService;
-    private final PaymentService paymentService;
 
     @GetMapping("/select-movie")
     public String selectMovie(Model model) {
@@ -142,31 +143,26 @@ public class BookingController {
     public String checkout(@PathVariable String reference, Model model) {
         BookingResponse booking = bookingService.getBookingByReference(reference);
         model.addAttribute("booking", booking);
-        model.addAttribute("paymentRequest", PaymentRequest.builder()
-                .bookingId(booking.getId())
-                .build());
         return "booking/checkout";
     }
 
-    @PostMapping("/pay")
-    public String processPayment(@AuthenticationPrincipal CustomUserDetails currentUser,
-                                 @RequestParam String reference,
-                                 @Valid @ModelAttribute("paymentRequest") PaymentRequest request,
-                                 BindingResult bindingResult,
-                                 RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Payment method is required.");
-            return "redirect:/booking/checkout/" + reference;
-        }
-
+    @PostMapping("/confirm/{reference}")
+    public String confirmBooking(@PathVariable String reference,
+                                  RedirectAttributes redirectAttributes) {
         try {
-            paymentService.processPayment(request);
             bookingService.confirmBooking(reference);
-            redirectAttributes.addFlashAttribute("successMessage", "Payment successful! Enjoy your movie.");
-            return "redirect:/customer/bookings";
+            redirectAttributes.addFlashAttribute("successMessage", "Booking confirmed! Enjoy your movie.");
+            return "redirect:/booking/confirmation/" + reference;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/booking/checkout/" + reference;
         }
+    }
+
+    @GetMapping("/confirmation/{reference}")
+    public String bookingConfirmation(@PathVariable String reference, Model model) {
+        BookingResponse booking = bookingService.getBookingByReference(reference);
+        model.addAttribute("booking", booking);
+        return "booking/confirmation";
     }
 }

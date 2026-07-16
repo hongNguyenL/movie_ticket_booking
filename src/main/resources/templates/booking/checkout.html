@@ -14,7 +14,7 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
-          <li class="breadcrumb-item"><a th:href="@{/booking/select-seats(showtimeId=${showtime.id})}" class="text-decoration-none">Select Seats</a></li>
+          <li class="breadcrumb-item"><a th:href="@{/customer/bookings}" class="text-decoration-none">My Bookings</a></li>
           <li class="breadcrumb-item active">Checkout</li>
         </ol>
       </nav>
@@ -34,8 +34,13 @@
         <span class="step-number"><i class="bi bi-check"></i></span> Select Seats
       </div>
       <div class="step active">
-        <span class="step-number">4</span> Checkout
+        <span class="step-number">4</span> Review &amp; Confirm
       </div>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+      <i class="bi bi-exclamation-triangle"></i> <span th:text="${errorMessage}">Error</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <div class="row g-4">
@@ -49,14 +54,14 @@
             <div class="row g-4">
               <div class="col-md-6">
                 <div class="d-flex gap-3">
-                  <img th:src="${movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid rounded" style="width: 100px; height: 150px; object-fit: cover;" th:alt="${movie.title}"/>
+                  <img th:src="${booking.movie.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid rounded" style="width: 100px; height: 150px; object-fit: cover;" th:alt="${booking.movie.title}"/>
                   <div>
-                    <h5 class="fw-bold" th:text="${movie.title}">Movie</h5>
+                    <h5 class="fw-bold" th:text="${booking.movie.title}">Movie</h5>
                     <div class="small text-muted">
-                      <span th:text="${movie.genre}">Genre</span> | <span th:text="${movie.language}">Language</span>
+                      <span th:text="${booking.movie.genre}">Genre</span> | <span th:text="${booking.movie.language}">Language</span>
                     </div>
                     <div class="small text-muted">
-                      <i class="bi bi-clock"></i> <span th:text="${movie.duration}">120</span> min
+                      <i class="bi bi-clock"></i> <span th:text="${booking.movie.duration}">120</span> min
                     </div>
                   </div>
                 </div>
@@ -64,25 +69,29 @@
               <div class="col-md-6">
                 <table class="table table-borderless mb-0">
                   <tr>
+                    <td class="text-muted ps-0">Booking Reference</td>
+                    <td class="fw-semibold text-end pe-0" th:text="${booking.bookingReference}">BK-XXXX</td>
+                  </tr>
+                  <tr>
                     <td class="text-muted ps-0">Cinema</td>
-                    <td class="fw-semibold text-end pe-0" th:text="${cinema.name}">Cinema</td>
+                    <td class="fw-semibold text-end pe-0" th:text="${booking.cinema.name}">Cinema</td>
                   </tr>
                   <tr>
                     <td class="text-muted ps-0">Hall</td>
-                    <td class="fw-semibold text-end pe-0" th:text="${showtime.hall?.name}">Hall 1</td>
+                    <td class="fw-semibold text-end pe-0" th:text="${booking.hall.name}">Hall 1</td>
                   </tr>
                   <tr>
                     <td class="text-muted ps-0">Date</td>
-                    <td class="fw-semibold text-end pe-0" th:text="${#temporals.format(showtime.startTime, 'EEE, MMM dd, yyyy')}">Date</td>
+                    <td class="fw-semibold text-end pe-0" th:text="${#temporals.format(booking.showtimeStart, 'EEE, MMM dd, yyyy')}">Date</td>
                   </tr>
                   <tr>
                     <td class="text-muted ps-0">Time</td>
-                    <td class="fw-semibold text-end pe-0" th:text="${#temporals.format(showtime.startTime, 'hh:mm a')}">Time</td>
+                    <td class="fw-semibold text-end pe-0" th:text="${#temporals.format(booking.showtimeStart, 'hh:mm a')}">Time</td>
                   </tr>
                   <tr>
                     <td class="text-muted ps-0">Seats</td>
                     <td class="fw-semibold text-end pe-0">
-                      <span class="badge bg-danger me-1" th:each="seat : ${selectedSeats}" th:text="${seat}">A1</span>
+                      <span class="badge bg-danger me-1" th:each="seat : ${booking.seats}" th:text="${seat.rowLabel + seat.seatNumber}">A1</span>
                     </td>
                   </tr>
                 </table>
@@ -99,81 +108,38 @@
                 </tr>
               </thead>
               <tbody>
-                <tr th:each="seat : ${selectedSeats}">
+                <tr th:each="seat : ${booking.seats}">
                   <td>
-                    Seat <span class="fw-semibold" th:text="${seat}">A1</span>
-                    <span class="badge bg-warning text-dark ms-2" th:if="${vipSeats.contains(seat)}">VIP</span>
+                    Seat <span class="fw-semibold" th:text="${seat.rowLabel + seat.seatNumber}">A1</span>
+                    <span class="badge bg-warning text-dark ms-2" th:if="${seat.seatType == 'VIP' or seat.seatType == 'COUPLE'}">
+                      <span th:text="${seat.seatType}">VIP</span>
+                    </span>
                   </td>
                   <td class="text-end">
-                    <span th:text="${#numbers.formatDecimal(vipSeats.contains(seat) ? vipPrice : normalPrice, 1, 2)}">$10.00</span>
+                    <span th:text="${#numbers.formatDecimal(seat.price, 1, 2)}">$10.00</span>
                   </td>
                 </tr>
               </tbody>
               <tfoot class="table-light">
                 <tr>
                   <td class="fw-bold">Total</td>
-                  <td class="text-end fw-bold fs-5 text-danger" th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">$0.00</td>
+                  <td class="text-end fw-bold fs-5 text-danger" th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$0.00</td>
                 </tr>
               </tfoot>
             </table>
           </div>
         </div>
 
-        <!-- Payment Method -->
+        <!-- Confirm Booking -->
         <div class="card shadow-sm mt-4">
           <div class="card-header bg-white">
-            <h5 class="fw-bold mb-0"><i class="bi bi-credit-card"></i> Payment Method</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-check2-circle"></i> Confirm Booking</h5>
           </div>
           <div class="card-body">
-            <form th:action="@{/booking/confirm}" method="post">
-              <input type="hidden" name="showtimeId" th:value="${showtime.id}"/>
-              <input type="hidden" name="selectedSeats" th:value="${selectedSeatsString}"/>
-              <input type="hidden" name="totalAmount" th:value="${totalAmount}"/>
-
-              <div class="mb-3">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="CREDIT_CARD" checked/>
-                  <label class="form-check-label" for="creditCard">
-                    <i class="bi bi-credit-card-2-front"></i> Credit / Debit Card
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="PAYPAL"/>
-                  <label class="form-check-label" for="paypal">
-                    <i class="bi bi-paypal"></i> PayPal
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="radio" name="paymentMethod" id="cash" value="CASH"/>
-                  <label class="form-check-label" for="cash">
-                    <i class="bi bi-cash"></i> Cash at Cinema
-                  </label>
-                </div>
-              </div>
-
-              <div id="cardDetails" class="p-3 bg-light rounded-3 mb-3">
-                <div class="mb-3">
-                  <label for="cardNumber" class="form-label">Card Number</label>
-                  <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456"/>
-                </div>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="expiry" class="form-label">Expiry Date</label>
-                    <input type="text" class="form-control" id="expiry" placeholder="MM/YY"/>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="cvv" class="form-label">CVV</label>
-                    <input type="text" class="form-control" id="cvv" placeholder="123"/>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="cardName" class="form-label">Cardholder Name</label>
-                  <input type="text" class="form-control" id="cardName" placeholder="John Doe"/>
-                </div>
-              </div>
-
+            <p class="text-muted">Please review your booking details above before confirming. Once confirmed, your seats will be reserved and cannot be changed.</p>
+            <form th:action="@{/booking/confirm/{reference}(reference=${booking.bookingReference})}" method="post">
               <button type="submit" class="btn btn-danger btn-lg w-100">
-                <i class="bi bi-check2-circle"></i> Confirm &amp; Pay <span th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">$0.00</span>
+                <i class="bi bi-check2-circle"></i> Confirm Booking — <span th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$0.00</span>
               </button>
             </form>
           </div>
@@ -188,17 +154,13 @@
           </div>
           <div class="card-body">
             <div class="d-flex justify-content-between mb-2">
-              <span th:text="${#strings.length(selectedSeats)} + ' x Ticket(s)'">2 x Ticket(s)</span>
-              <span th:text="${#numbers.formatDecimal(subtotal, 1, 2)}">$20.00</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span>Booking Fee</span>
-              <span th:text="${#numbers.formatDecimal(bookingFee, 1, 2)}">$2.00</span>
+              <span th:text="${booking.seats?.size() ?: 0} + ' x Ticket(s)'">2 x Ticket(s)</span>
+              <span th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$20.00</span>
             </div>
             <hr/>
             <div class="d-flex justify-content-between fw-bold fs-5">
               <span>Total</span>
-              <span class="text-danger" th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">$22.00</span>
+              <span class="text-danger" th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$22.00</span>
             </div>
           </div>
         </div>
@@ -207,7 +169,7 @@
           <div class="card-body">
             <div class="d-flex align-items-center gap-2 text-muted small">
               <i class="bi bi-shield-check fs-4 text-success"></i>
-              <span>Your payment is secure. We use industry-standard encryption to protect your data.</span>
+              <span>Your booking is secure. Seats are held for 10 minutes.</span>
             </div>
           </div>
         </div>
@@ -217,12 +179,5 @@
 
   <div th:replace="~{fragments/footer :: footer}"></div>
   <div th:replace="~{fragments/scripts :: scripts}"></div>
-  <script>
-    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-      radio.addEventListener('change', function() {
-        document.getElementById('cardDetails').style.display = this.value === 'CREDIT_CARD' ? 'block' : 'none';
-      });
-    });
-  </script>
 </body>
 </html>

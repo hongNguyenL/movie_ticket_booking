@@ -20,6 +20,7 @@ public interface BookingMapper {
     @Mapping(target = "hall", source = "showtime.hall")
     @Mapping(target = "showtimeStart", source = "showtime.startTime")
     @Mapping(target = "showtimeEnd", source = "showtime.endTime")
+    @Mapping(target = "seats", source = "bookingSeats")
     BookingResponse toResponse(Booking booking);
 
     @Mapping(target = "movieTitle", source = "showtime.movie.title")

@@ -30,24 +30,26 @@
             <div class="row text-start g-3">
               <div class="col-sm-6">
                 <small class="text-muted d-block">Movie</small>
-                <span class="fw-semibold" th:text="${booking.showtime?.movie?.title}">Movie</span>
+                <span class="fw-semibold" th:text="${booking.movie.title}">Movie</span>
               </div>
               <div class="col-sm-6">
                 <small class="text-muted d-block">Cinema</small>
-                <span class="fw-semibold" th:text="${booking.showtime?.cinema?.name}">Cinema</span>
+                <span class="fw-semibold" th:text="${booking.cinema.name}">Cinema</span>
               </div>
               <div class="col-sm-6">
                 <small class="text-muted d-block">Date</small>
-                <span class="fw-semibold" th:text="${#temporals.format(booking.showtime?.startTime, 'EEE, MMM dd, yyyy')}">Date</span>
+                <span class="fw-semibold" th:text="${#temporals.format(booking.showtimeStart, 'EEE, MMM dd, yyyy')}">Date</span>
               </div>
               <div class="col-sm-6">
                 <small class="text-muted d-block">Time</small>
-                <span class="fw-semibold" th:text="${#temporals.format(booking.showtime?.startTime, 'hh:mm a')}">Time</span>
+                <span class="fw-semibold" th:text="${#temporals.format(booking.showtimeStart, 'hh:mm a')}">Time</span>
               </div>
               <div class="col-sm-6">
                 <small class="text-muted d-block">Seats</small>
                 <span class="fw-semibold">
-                  <span th:each="seat, iter : ${booking.seats}" th:text="${seat.seatNumber}" th:remove="tag">A1</span><span th:unless="${iter.last}">, </span>
+                  <th:block th:each="seat, iter : ${booking.seats}">
+                    <span th:text="${seat.rowLabel + seat.seatNumber}">A1</span><span th:unless="${iter.last}">, </span>
+                  </th:block>
                 </span>
               </div>
               <div class="col-sm-6">
@@ -59,7 +61,7 @@
         </div>
 
         <div class="d-flex justify-content-center gap-3">
-          <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-danger btn-lg">
+          <a th:href="@{/customer/bookings/{reference}(reference=${booking.bookingReference})}" class="btn btn-danger btn-lg">
             <i class="bi bi-ticket-detailed"></i> View Booking Details
           </a>
           <a th:href="@{/movies}" class="btn btn-outline-secondary btn-lg">

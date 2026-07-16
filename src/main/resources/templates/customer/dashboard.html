@@ -64,13 +64,13 @@
             <tbody>
               <tr th:each="booking : ${recentBookings}">
                 <td><span class="fw-semibold" th:text="${booking.bookingReference}">REF123</span></td>
-                <td th:text="${booking.showtime?.movie?.title}">Movie</td>
+                <td th:text="${booking.movieTitle}">Movie</td>
                 <td>
-                  <span th:text="${#temporals.format(booking.showtime?.startTime, 'MMM dd, hh:mm a')}">Date</span>
+                  <span th:text="${#temporals.format(booking.showtimeStart, 'MMM dd, hh:mm a')}">Date</span>
                 </td>
-                <td th:text="${booking.seatCount}">2</td>
+                <td>-</td>
                 <td>
-                  <span class="badge" th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bg-success' : (${booking.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">CONFIRMED</span>
+                  <span class="badge" th:classappend="${booking.status == 'CONFIRMED'} ? 'bg-success' : (${booking.status == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">CONFIRMED</span>
                 </td>
                 <td>
                   <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-sm btn-outline-primary">

@@ -24,30 +24,22 @@
             <h5 class="fw-bold mb-0"><i class="bi bi-pencil-square"></i> Edit Profile</h5>
           </div>
           <div class="card-body">
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
-              <i class="bi bi-check-circle"></i> Profile updated successfully!
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+              <i class="bi bi-check-circle"></i> <span th:text="${successMessage}">Profile updated successfully!</span>
               <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            <form th:action="@{/customer/profile}" th:object="${user}" method="post" class="needs-validation" novalidate>
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="firstName" class="form-label">First Name</label>
-                  <input type="text" class="form-control" th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'" id="firstName" th:field="*{firstName}" required/>
-                  <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">Required</div>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="lastName" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'" id="lastName" th:field="*{lastName}" required/>
-                  <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Required</div>
-                </div>
+            <form th:action="@{/customer/profile}" th:object="${profileUpdateRequest}" method="post" class="needs-validation" novalidate>
+              <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" id="fullName" th:field="*{fullName}" required/>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Required</div>
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <div class="input-group">
                   <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                  <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" id="email" th:field="*{email}" required/>
+                  <input type="email" class="form-control" id="email" th:value="${profile.email}" disabled readonly/>
                 </div>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Required</div>
               </div>
               <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
@@ -56,17 +48,6 @@
                   <input type="tel" class="form-control" th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'" id="phone" th:field="*{phone}"/>
                 </div>
                 <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Invalid phone</div>
-              </div>
-
-              <hr class="my-4"/>
-
-              <div class="mb-3">
-                <label for="currentPassword" class="form-label">Current Password (required to save changes)</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                  <input type="password" class="form-control" th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'" id="currentPassword" name="currentPassword" required/>
-                </div>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}">Required</div>
               </div>
 
               <button type="submit" class="btn btn-danger">
@@ -116,12 +97,12 @@
             </div>
             <div class="mb-2">
               <small class="text-muted d-block">Member Since</small>
-              <span class="fw-semibold" th:if="${user.createdAt}" th:text="${#temporals.format(user.createdAt, 'MMM dd, yyyy')}">Date</span>
+              <span class="fw-semibold" th:if="${profile.createdAt}" th:text="${#temporals.format(profile.createdAt, 'MMM dd, yyyy')}">Date</span>
             </div>
             <div>
               <small class="text-muted d-block">Account Status</small>
-              <span class="badge bg-success" th:if="${user.enabled}">Active</span>
-              <span class="badge bg-danger" th:unless="${user.enabled}">Disabled</span>
+              <span class="badge bg-success" th:if="${profile.enabled}">Active</span>
+              <span class="badge bg-danger" th:unless="${profile.enabled}">Disabled</span>
             </div>
           </div>
         </div>

@@ -40,27 +40,26 @@
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-md-2">
-                  <img th:src="${booking.showtime?.movie?.posterUrl} ?: @{/images/placeholder-poster.svg}" class="img-fluid rounded" style="max-height: 120px; object-fit: cover;" th:alt="${booking.showtime?.movie?.title}"/>
+                  <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 120px;"><i class="bi bi-film text-muted" style="font-size: 2rem;"></i></div>
                 </div>
                 <div class="col-md-7">
-                  <h5 class="fw-bold mb-1" th:text="${booking.showtime?.movie?.title}">Movie</h5>
+                  <h5 class="fw-bold mb-1" th:text="${booking.movieTitle}">Movie</h5>
                   <div class="text-muted small mb-2">
                     <span th:text="${booking.bookingReference}">REF</span>
                   </div>
                   <div class="d-flex flex-wrap gap-3 small">
-                    <span><i class="bi bi-building"></i> <span th:text="${booking.showtime?.cinema?.name}">Cinema</span></span>
-                    <span><i class="bi bi-clock"></i> <span th:text="${#temporals.format(booking.showtime?.startTime, 'MMM dd, yyyy hh:mm a')}">Showtime</span></span>
-                    <span><i class="bi bi-grid-3x3"></i> <span th:text="${booking.seatNames}">Seats</span></span>
+                    <span><i class="bi bi-building"></i> <span th:text="${booking.cinemaName}">Cinema</span></span>
+                    <span><i class="bi bi-clock"></i> <span th:text="${#temporals.format(booking.showtimeStart, 'MMM dd, yyyy hh:mm a')}">Showtime</span></span>
                     <span><i class="bi bi-currency-dollar"></i> <span th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">0.00</span></span>
                   </div>
                 </div>
                 <div class="col-md-3 text-md-end mt-3 mt-md-0">
-                  <span class="badge fs-6 mb-2 d-block" th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bg-success' : (${booking.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">Status</span>
+                  <span class="badge fs-6 mb-2 d-block" th:classappend="${booking.status == 'CONFIRMED'} ? 'bg-success' : (${booking.status == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">Status</span>
                   <div class="d-flex gap-2 justify-content-md-end">
                     <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-outline-primary btn-sm">
                       <i class="bi bi-eye"></i> View
                     </a>
-                    <button th:if="${booking.status.name() == 'CONFIRMED' and booking.showtime?.startTime != null and booking.showtime.startTime > #temporals.createNow()}" class="btn btn-outline-danger btn-sm" onclick="confirmCancel(${booking.id})">
+                    <button th:if="${booking.status == 'CONFIRMED' and booking.showtimeStart != null and booking.showtimeStart > #temporals.createNow()}" class="btn btn-outline-danger btn-sm" onclick="confirmCancel(${booking.id})">
                       <i class="bi bi-x-circle"></i> Cancel
                     </button>
                   </div>

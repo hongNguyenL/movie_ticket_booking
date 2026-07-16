@@ -27,7 +27,7 @@
         <div class="card shadow-sm">
           <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0"><i class="bi bi-ticket-detailed"></i> Booking Details</h5>
-            <span class="badge fs-6" th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bg-success' : (${booking.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">Status</span>
+            <span class="badge fs-6" th:classappend="${booking.status == 'CONFIRMED'} ? 'bg-success' : (${booking.status == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')" th:text="${booking.status}">Status</span>
           </div>
           <div class="card-body">
             <div class="row g-4">
@@ -38,24 +38,24 @@
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Movie</small>
-                  <span class="fw-semibold fs-5" th:text="${booking.showtime?.movie?.title}">Movie Title</span>
+                  <span class="fw-semibold fs-5" th:text="${booking.movie?.title}">Movie Title</span>
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Cinema</small>
-                  <span class="fw-semibold" th:text="${booking.showtime?.cinema?.name}">Cinema Name</span>
-                  <span class="text-muted" th:if="${booking.showtime?.cinema?.location}"> - <span th:text="${booking.showtime?.cinema?.location}">Location</span></span>
+                  <span class="fw-semibold" th:text="${booking.cinema?.name}">Cinema Name</span>
+                  <span class="text-muted" th:if="${booking.cinema?.address}"> - <span th:text="${booking.cinema?.address}">Location</span></span>
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Hall</small>
-                  <span class="fw-semibold" th:text="${booking.showtime?.hall?.name}">Hall 1</span>
+                  <span class="fw-semibold" th:text="${booking.hall?.name}">Hall 1</span>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Showtime</small>
-                  <span class="fw-semibold" th:text="${#temporals.format(booking.showtime?.startTime, 'EEEE, MMM dd, yyyy')}">Date</span>
+                  <span class="fw-semibold" th:text="${#temporals.format(booking.showtimeStart, 'EEEE, MMM dd, yyyy')}">Date</span>
                   <br/>
-                  <span class="fw-semibold text-danger" th:text="${#temporals.format(booking.showtime?.startTime, 'hh:mm a')}">Time</span>
+                  <span class="fw-semibold text-danger" th:text="${#temporals.format(booking.showtimeStart, 'hh:mm a')}">Time</span>
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Selected Seats</small>
@@ -65,11 +65,11 @@
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Payment Status</small>
-                  <span class="badge" th:classappend="${booking.paymentStatus.name() == 'PAID'} ? 'bg-success' : (${booking.paymentStatus.name() == 'REFUNDED'} ? 'bg-info' : 'bg-warning text-dark')" th:text="${booking.paymentStatus}">PAID</span>
+                  <span class="badge" th:classappend="${booking.payment?.status == 'PAID'} ? 'bg-success' : (${booking.payment?.status == 'REFUNDED'} ? 'bg-info' : 'bg-warning text-dark')" th:text="${booking.payment?.status}">PAID</span>
                 </div>
                 <div class="mb-3">
                   <small class="text-muted d-block text-uppercase" style="letter-spacing: 1px;">Booked On</small>
-                  <span th:text="${#temporals.format(booking.createdAt, 'MMM dd, yyyy hh:mm a')}">Date</span>
+                  <span th:text="${#temporals.format(booking.bookedAt, 'MMM dd, yyyy hh:mm a')}">Date</span>
                 </div>
               </div>
             </div>
@@ -82,10 +82,7 @@
                 <span class="fw-bold fs-4 text-danger" th:text="${#numbers.formatDecimal(booking.totalPrice, 1, 2)}">$0.00</span>
               </div>
               <div class="d-flex gap-2">
-                <a th:href="@{/customer/ticket/{id}(id=${booking.id})}" class="btn btn-danger" target="_blank" th:if="${booking.status.name() == 'CONFIRMED'}">
-                  <i class="bi bi-printer"></i> Print Ticket
-                </a>
-                <button th:if="${booking.status.name() == 'CONFIRMED' and booking.showtime?.startTime != null and booking.showtime.startTime > #temporals.createNow()}" class="btn btn-outline-danger" onclick="confirmCancel(${booking.id})">
+                <button th:if="${booking.status == 'CONFIRMED' and booking.showtimeStart != null and booking.showtimeStart > #temporals.createNow()}" class="btn btn-outline-danger" onclick="confirmCancel(${booking.id})">
                   <i class="bi bi-x-circle"></i> Cancel Booking
                 </button>
               </div>
@@ -102,7 +99,7 @@
           </div>
           <div class="card-body text-center">
             <div class="bg-light p-4 rounded-3 d-inline-block">
-              <img th:src="${booking.qrCodeUrl} ?: @{/images/placeholder-qr.png}" alt="QR Code" style="width: 180px; height: 180px;"/>
+              <img src="/images/placeholder-qr.png" alt="QR Code" style="width: 180px; height: 180px;"/>
             </div>
             <p class="small text-muted mt-2 mb-0">Show this QR code at the cinema entrance</p>
           </div>
@@ -115,9 +112,6 @@
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">
-              <a th:href="@{/customer/ticket/{id}(id=${booking.id})}" class="btn btn-danger" target="_blank" th:if="${booking.status.name() == 'CONFIRMED'}">
-                <i class="bi bi-download"></i> Download Ticket
-              </a>
               <a th:href="@{/customer/bookings}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Back to Bookings
               </a>
