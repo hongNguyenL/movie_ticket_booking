@@ -629,3 +629,61 @@ main {
   font-weight: 600;
   margin: 0;
 }
+
+/* Dark mode overrides */
+[data-bs-theme="dark"] body {
+  background-color: #1a1a2e;
+}
+
+[data-bs-theme="dark"] .page-header {
+  background: #16213e;
+  border-bottom-color: #2a2a4a;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .review-card {
+  background-color: #16213e;
+}
+
+[data-bs-theme="dark"] .card.bg-light {
+  background-color: #1a1a2e !important;
+}
+
+[data-bs-theme="dark"] .card-header.bg-white {
+  background-color: #16213e !important;
+  border-bottom-color: #2a2a4a;
+}
+
+[data-bs-theme="dark"] .review-avatar {
+  background: #2a2a4a;
+  color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .ticket {
+  background: #16213e;
+}
+
+[data-bs-theme="dark"] .ticket-footer {
+  background: #0f3460;
+}
+
+[data-bs-theme="dark"] .auth-card .card-header,
+[data-bs-theme="dark"] .auth-card .card-body {
+  background: #16213e;
+}
+
+[data-bs-theme="dark"] .step {
+  background: #2a2a4a;
+  color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: #1a1a2e;
+  border-color: #2a2a4a;
+  color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .seat-map-container {
+  background: #16213e;
+}
